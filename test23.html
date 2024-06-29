@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AR.js Plane Detection Debug</title>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.3.2/aframe/build/aframe-ar.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    a-scene { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    
+  </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+      console.log('DOM content loaded');
+      const sceneEl = document.querySelector('a-scene');
+
+      if (sceneEl) {
+        console.log('Scene element found');
+        
+        sceneEl.addEventListener('loaded', function () {
+          console.log('A-Frame scene loaded');
+        });
+
+        sceneEl.addEventListener('arjs-nftloaded', function () {
+          console.log('AR.js NFT loaded');
+        });
+
+        sceneEl.addEventListener('arjs-initialized', function () {
+          console.log('AR.js initialized');
+        });
+
+        sceneEl.addEventListener('arjs-video-loaded', function () {
+          console.log('AR.js video loaded');
+        });
+
+        sceneEl.addEventListener('arjs-nftloaded', function () {
+          console.log('AR.js NFT loaded');
+        });
+
+        sceneEl.addEventListener('arjs-markerVisible', function () {
+          console.log('AR.js marker visible');
+        });
+
+        sceneEl.addEventListener('plane-detected', function (evt) {
+          console.log('Plane detected:', evt.detail);
+          alert('Plane detected!');
+        });
+
+        sceneEl.setAttribute('plane-visualizer', '');
+      } else {
+        console.log('Scene element not found');
+      }
+    });
+
+    // Registering the plane-visualizer component
+    AFRAME.registerComponent('plane-visualizer', {
+      init: function () {
+        console.log('plane-visualizer component initialized');
+      }
+    });
+  </script>
+</head>
+<body>
+  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: true;">
+    <a-assets></a-assets>
+
+    <!-- AR.js plane detection -->
+    <a-entity arjs-anchor-generator="type: plane;"></a-entity>
+
+    <a-camera></a-camera>
+  </a-scene>
+
+
+</body>
+</html>
