@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AR.js Plane Detection</title>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.3.2/aframe/build/aframe-ar.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    a-scene { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+
+    <script>
+        AFRAME.registerComponent('plane-visualizer', {
+          init: function () {
+            const sceneEl = this.el.sceneEl;
+            
+            function createBox(color,evt){
+                console.log("box creation");
+                if (color === 'yellow') { // Horizontal plane (floor)
+                const cube = document.createElement('a-box');
+                cube.setAttribute('position', `${evt.detail.position.x} ${evt.detail.position.y + 0.5} ${evt.detail.position.z}`);
+                cube.setAttribute('scale', '10 10 10');
+                cube.setAttribute('color', 'black');
+                sceneEl.appendChild(cube);
+              }
+            }
+            // Function to create plane elements dynamically
+            function createPlane(id, color, position, rotation, width, height) {
+                console.log("plane should be here");
+              const plane = document.createElement('a-plane');
+              plane.setAttribute('id', id);
+              plane.setAttribute('color', color);
+              plane.setAttribute('position', position);
+              plane.setAttribute('rotation', rotation);
+              plane.setAttribute('width', width);
+              plane.setAttribute('height', height);
+              plane.setAttribute('opacity', '0.5');
+              sceneEl.appendChild(plane);
+    
+              // Add a large yellow cube to the detected horizontal plane
+              if (color === 'yellow') { // Horizontal plane (floor)
+                console.log("box should be here");
+                const cube = document.createElement('a-box');
+                cube.setAttribute('position', `${evt.detail.position.x} ${evt.detail.position.y + 0.5} ${evt.detail.position.z}`);
+                cube.setAttribute('scale', '10 10 10');
+                cube.setAttribute('color', 'black');
+                sceneEl.appendChild(cube);
+              }
+            }
+    
+            // Detect planes and create corresponding elements
+            sceneEl.addEventListener('plane-detected', function (evt) {
+                console.log("plane element creation");
+              const planeId = `plane-${evt.detail.id}`;
+              const planeType = evt.detail.rotation.x === -90 ? 'horizontal' : 'vertical';
+              const planeColor = planeType === 'horizontal' ? 'yellow' : 'green';
+              console.log("is plane dtected?")
+              
+    
+              createPlane(
+                planeId,
+                planeColor,
+                `${evt.detail.position.x} ${evt.detail.position.y} ${evt.detail.position.z}`,
+                `${evt.detail.rotation.x} ${evt.detail.rotation.y} ${evt.detail.rotation.z}`,
+                evt.detail.size.width,
+                evt.detail.size.height
+              );
+
+              //createbox after plane creation
+              createBox(planeColor,evt);
+
+            });
+    
+            // Update plane elements as they are updated in the AR scene
+            sceneEl.addEventListener('plane-updated', function (evt) {
+              const planeId = `plane-${evt.detail.id}`;
+              const planeEl = document.querySelector(`#${planeId}`);
+              if (planeEl) {
+                planeEl.setAttribute('position', `${evt.detail.position.x} ${evt.detail.position.y} ${evt.detail.position.z}`);
+                planeEl.setAttribute('rotation', `${evt.detail.rotation.x} ${evt.detail.rotation.y} ${evt.detail.rotation.z}`);
+                planeEl.setAttribute('width', evt.detail.size.width);
+                planeEl.setAttribute('height', evt.detail.size.height);
+              }
+            });
+    
+            // Remove plane elements when they are no longer detected
+            sceneEl.addEventListener('plane-removed', function (evt) {
+                console.log("plane deleted");
+              const planeId = `plane-${evt.detail.id}`;
+              const planeEl = document.querySelector(`#${planeId}`);
+              if (planeEl) {
+                planeEl.parentNode.removeChild(planeEl);
+              }
+            });
+          }
+        });
+    
+        document.addEventListener('DOMContentLoaded', function () {
+          document.querySelector('a-scene').setAttribute('plane-visualizer', '');
+        });
+      </script>
+  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
+    <a-assets></a-assets>
+
+    <!-- AR.js plane detection -->
+    <a-entity arjs-anchor-generator="type: plane;" ></a-entity>
+
+    <a-camera></a-camera>
+  </a-scene>
+
+ 
+</body>
+</html>
